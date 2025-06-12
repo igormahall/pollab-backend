@@ -1,0 +1,21 @@
+# Arquivos do Python
+__pycache__/
+*.pyc
+
+# Ambiente Virtual
+.venv/
+venv/
+env/
+
+# Banco de Dados
+db.sqlite3
+*.sqlite3
+
+# Arquivos de IDE (PyCharm)
+.idea/
+
+# Arquivos de sistema
+.DS_Store
+
+# Arquivo de variáveis de ambiente
+.env
