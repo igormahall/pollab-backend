@@ -5,7 +5,7 @@ from .models import Enquete, Opcao, Voto
 from .serializers import EnqueteSerializer, VotoInputSerializer
 
 
-class EnqueteViewSet(viewsets.ReadOnlyModelViewSet):
+class EnqueteViewSet(viewsets.ModelViewSet):
     """
     ViewSet para listar e recuperar enquetes.
     """

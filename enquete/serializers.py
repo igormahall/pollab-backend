@@ -7,12 +7,37 @@ class OpcaoSerializer(serializers.ModelSerializer):
         fields = ['id', 'texto_opcao', 'votos']
 
 class EnqueteSerializer(serializers.ModelSerializer):
-    # Aninha as opções dentro da enquete para facilitar o consumo no frontend
+    # Este campo é para LEITURA (quando pedimos os detalhes de uma enquete)
     opcoes = OpcaoSerializer(many=True, read_only=True)
+
+    # Este campo é para ESCRITA (quando criamos uma nova enquete)
+    # Ele espera uma lista de strings, ex: ["Opção 1", "Opção 2"]
+    opcoes_input = serializers.ListField(
+        child=serializers.CharField(max_length=255),
+        write_only=True
+    )
 
     class Meta:
         model = Enquete
-        fields = ['id', 'titulo', 'data_criacao', 'status', 'opcoes']
+        # Adicione 'opcoes_input' aos fields para que ele seja aceito no POST
+        fields = ['id', 'titulo', 'data_criacao', 'status', 'opcoes', 'opcoes_input']
+
+    def create(self, validated_data):
+        """
+        Sobrescreve o método create padrão para lidar com a criação
+        aninhada das opções.
+        """
+        # 1. Pega os textos das opções e os remove dos dados validados
+        opcoes_data = validated_data.pop('opcoes_input')
+
+        # 2. Cria o objeto Enquete principal
+        enquete = Enquete.objects.create(**validated_data)
+
+        # 3. Itera sobre os textos das opções e cria cada objeto Opcao
+        for texto_opcao in opcoes_data:
+            Opcao.objects.create(enquete=enquete, texto_opcao=texto_opcao)
+
+        return enquete
 
 class VotoInputSerializer(serializers.Serializer):
     """
