@@ -18,7 +18,7 @@ class EnqueteViewSet(viewsets.ModelViewSet):
 
         # Se a ação for 'retrieve' (buscar um único item pelo ID)...
         if self.action == 'retrieve':
-            # ... permite buscar em TODAS as enquetes, independente do status.
+            # ... permite buscar em TODAS as enquetes, independente do status
             return Enquete.objects.all().prefetch_related('opcoes')
 
         # Para a ação 'list' e outras, usa o queryset padrão (apenas 'Aberta')
