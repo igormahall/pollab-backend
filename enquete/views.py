@@ -14,7 +14,17 @@ class EnqueteViewSet(viewsets.ModelViewSet):
 
     serializer_class = EnqueteSerializer
 
-    @action(detail=True, methods=['post'], serializer_class=VotoInputSerializer)
+    def get_queryset(self):
+
+        # Se a ação for 'retrieve' (buscar um único item pelo ID)...
+        if self.action == 'retrieve':
+            # ... permite buscar em TODAS as enquetes, independente do status.
+            return Enquete.objects.all().prefetch_related('opcoes')
+
+        # Para a ação 'list' e outras, usa o queryset padrão (apenas 'Aberta')
+        return super().get_queryset()
+
+    @action(detail=True, methods=['post'])
     def votar(self, request, pk=None):
         enquete = self.get_object()
         id_participante = request.data.get('id_participante')

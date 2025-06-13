@@ -1,231 +1,192 @@
-# 📊 API para Sistema de Enquetes
+# 📊 API Django — Sistema de Enquetes
 
-Um backend simples e robusto, construído com Django e Django REST Framework, para gerenciar enquetes de múltipla escolha.
-
-Esta API permite listar enquetes ativas, visualizar suas opções e registrar votos de forma segura — prevenindo votos duplicados por participante.
-
-## 🛠 Tecnologias Utilizadas
-
-- Python
-- Django
-- Django REST Framework (DRF)
-- PostgreSQL
-
-## ⚙️ Configuração do Projeto
-
-Para configurar e executar o projeto em um ambiente de desenvolvimento local, siga os passos abaixo:
-
-### 1️⃣ Clonar o Repositório
-
-```bash
-git clone https://github.com/seu-usuario/seu-repositorio.git
-cd seu-repositorio
-```
-
-### 2️⃣ Criar e Ativar o Ambiente Virtual
-
-É uma boa prática isolar as dependências do projeto.
-
-```bash
-# Criar o ambiente virtual
-python -m venv .venv
-
-# Ativar no Windows
-.venv\Scripts\activate
-
-# Ativar no macOS/Linux
-source .venv/bin/activate
-```
-
-### 3️⃣ Instalar as Dependências
-
-Instale as dependências listadas em `requirements.txt`:
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4️⃣ Aplicar as Migrações do Banco de Dados
-
-Este comando cria as tabelas no banco de dados com base nos modelos definidos em `models.py`:
-
-```bash
-python manage.py migrate
-```
-
-### 5️⃣ Criar um Superusuário
-
-Você precisará de um usuário administrador para acessar o painel administrativo do Django e cadastrar as primeiras enquetes e opções para teste.
-
-```bash
-python manage.py createsuperuser
-```
-
-Siga as instruções no terminal para definir nome, e-mail e senha.
+Backend **RESTful** para gerenciar enquetes de múltipla escolha.  
+Construído com **Django 5** + **Django REST Framework** e banco **PostgreSQL**.
 
 ---
 
-## ▶️ Executando a Aplicação
+## ✨ Visão Geral
 
-Com o ambiente configurado, inicie o servidor de desenvolvimento do Django:
+| Item | Detalhe |
+|------|---------|
+| **Stack** | Python 3.12 · Django 5 · DRF 3 · PostgreSQL |
+| **Auth** | Token (DRF Simple JWT)¹ |
+| **Objetivo** | CRUD completo de enquetes, prevenção de voto duplicado, auditoria de votos |
+| **Deploy** | Docker Compose, Heroku / Render / Fly.io ou VPS |
+
+> ¹ O exemplo padrão identifica o usuário por `id_participante`, mas a base está pronta para JWT ou qualquer outro esquema de autenticação.
+
+---
+
+## ⚙️ Configuração Rápida (Dev)
 
 ```bash
+# 1. Clonar
+git clone https://github.com/<seu-usuario>/enquetes-backend.git
+cd enquetes-backend
+
+# 2. Ambiente virtual
+python -m venv .venv
+source .venv/bin/activate        # macOS / Linux
+# .venv\Scripts\activate       # Windows
+
+# 3. Variáveis de ambiente
+cp .env.example .env             # edite DB_USER/DB_PASS/DB_NAME
+
+# 4. Instalar dependências
+pip install -r requirements.txt
+
+# 5. Migrações + superusuário
+python manage.py migrate
+python manage.py createsuperuser
+
+# 6. Servidor de desenvolvimento
 python manage.py runserver
 ```
 
-A API estará disponível em: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
-
-
----
-
-
-## 🗄️ Modelo de Dados
-
-A API é sustentada por três modelos principais, que garantem a integridade e a lógica do sistema de enquetes.
-
-### 📝 Enquete
-
-Armazena as informações principais de cada enquete.
-
-- `id`: Chave Primária (PK).
-- `titulo`: Título da enquete (ex: `"Qual sua linguagem favorita?"`).
-- `data_criacao`: Data e hora em que a enquete foi criada.
-- `status`: Estado atual da enquete (`"Aberta"`, `"Fechada"`).
-
-### 🗳️ Opcao
-
-Representa as alternativas de resposta para uma enquete.
-
-- `id`: Chave Primária (PK).
-- `enquete`: Chave Estrangeira (FK) que conecta a opção à sua enquete mãe.
-- `texto_opcao`: Texto da alternativa (ex: `"Python"`, `"JavaScript"`).
-- `votos`: Contador numérico dos votos recebidos por esta opção.
-
-### 🧾 Voto
-
-Registra cada voto individual, funcionando como uma tabela de junção para controle e auditoria.
-
-- `id`: Chave Primária (PK).
-- `id_participante`: Identificador único do participante (ex: um ID de sessão do navegador).
-- `enquete`: Chave Estrangeira (FK) para a enquete em que o voto foi registrado.
-- `opcao_escolhida`: Chave Estrangeira (FK) para a opção que foi votada.
-- `data_voto`: Data e hora em que o voto foi computado.
-
-### 🔗 Relacionamentos
-
-- **Um-para-Muitos:**  
-  Uma enquete pode ter várias opções. Este relacionamento é definido pela chave estrangeira no modelo `Opcao`.
-
-- **Controle de Voto Único:**  
-  A combinação dos campos `enquete` e `id_participante` no modelo `Voto` é única.  
-  Isso garante a regra de negócio de que um mesmo participante não pode votar mais de uma vez na mesma enquete.
+A API sobe em **http://127.0.0.1:8000/** – documentação automática em **/swagger/** e **/redoc/** (drf‑spectacular).
 
 ---
 
-## 📄 Contrato da API (Endpoints para o Frontend)
+## 🗄️ Modelo de Dados — Detalhado
 
-A seguir estão os endpoints que devem ser consumidos pela aplicação cliente (ex: Angular).
+A lógica do sistema é sustentada por três tabelas principais.  
+Os modelos foram cuidadosamente normalizados para manter integridade, rastreabilidade e desempenho.
 
----
+### 1. Enquete (`Poll`)
 
-### 1️⃣ Listar Todas as Enquetes Ativas
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `id` | `BigAutoField` (PK) | Identificador único |
+| `titulo` | `CharField(max_length=120)` | Pergunta exibida ao usuário |
+| `data_criacao` | `DateTimeField(auto_now_add=True)` | Timestamp de criação |
+| `data_encerramento` | `DateTimeField(null=True, blank=True)` | Encerramento opcional |
+| `status` | `CharField(choices=[('Aberta','Aberta'),('Fechada','Fechada')], default='Aberta')` | Estado atual |
 
-- **Endpoint:** `GET /api/enquetes/`  
-- **Descrição:** Retorna uma lista com todas as enquetes que estão com o status "Aberta".  
-- **Resposta de Sucesso (200 OK):**
+**Métodos de domínio**
 
-```json
-[
-    {
-        "id": 1,
-        "titulo": "Qual sua linguagem de programação favorita?",
-        "data_criacao": "2025-06-12T03:04:47.641235Z",
-        "status": "Aberta",
-        "opcoes": [
-            {"id": 1, "texto_opcao": "Python", "votos": 15},
-            {"id": 2, "texto_opcao": "JavaScript", "votos": 22}
-        ]
-    }
-]
-```
+* `is_aberta()` → `bool` – retorna se a enquete ainda aceita votos  
+* `total_votos` (property) → `int` – soma dos votos computados em todas as opções
 
 ---
 
-### 2️⃣ Obter Detalhes de uma Enquete Específica
+### 2. Opção (`Choice`)
 
-- **Endpoint:** `GET /api/enquetes/<id>/`  
-- **Descrição:** Retorna os dados completos de uma única enquete, incluindo suas opções e a contagem de votos atual.  
-- **Resposta de Sucesso (200 OK):**
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `id` | `BigAutoField` (PK) | Identificador único |
+| `enquete` | `ForeignKey('Poll', related_name='opcoes', on_delete=CASCADE)` | Enquete associada |
+| `texto_opcao` | `CharField(max_length=100)` | Texto exibido no botão de voto |
+| `votos` | `PositiveIntegerField(default=0)` | Contador denormalizado (cache) |
 
-```json
-{
-    "id": 1,
-    "titulo": "Qual sua linguagem de programação favorita?",
-    "data_criacao": "2025-06-12T03:04:47.641235Z",
-    "status": "Aberta",
-    "opcoes": [
-        {"id": 1, "texto_opcao": "Python", "votos": 15},
-        {"id": 2, "texto_opcao": "JavaScript", "votos": 22},
-        {"id": 3, "texto_opcao": "Rust", "votos": 8}
+**Métodos auxiliares**
+
+* `percentual` (property) – calcula **votos desta opção ÷ total da enquete × 100** com fallback 0 %
+
+> O contador `votos` é atualizado via `F()` expressions para evitar condição de corrida e reduzir agregações caras em alta escala.
+
+---
+
+### 3. Voto (`Vote`)
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `id` | `BigAutoField` (PK) | Identificador |
+| `id_participante` | `CharField(max_length=64)` | Identificador do usuário/visitante |
+| `enquete` | `ForeignKey('Poll', on_delete=CASCADE)` | Enquete votada |
+| `opcao_escolhida` | `ForeignKey('Choice', on_delete=CASCADE)` | Opção votada |
+| `data_voto` | `DateTimeField(auto_now_add=True)` | Timestamp |
+
+**Restrição de unicidade**
+
+```python
+class Meta:
+    constraints = [
+        models.UniqueConstraint(
+            fields=["enquete", "id_participante"],
+            name="unique_vote_per_participant_per_poll",
+        )
     ]
-}
 ```
+Garante **1 voto por participante** em cada enquete.
 
 ---
 
-### 3️⃣ Registrar um Voto em uma Enquete
+### 🔗 Relacionamentos & Fluxo
 
-- **Endpoint:** `POST /api/enquetes/<id>/votar/`  
-- **Descrição:** Registra um voto para uma opção específica de uma enquete. A API previne que um mesmo `id_participante` vote mais de uma vez na mesma enquete.  
-
-- **Corpo da Requisição (Payload):**
-
-```json
-{
-    "id_opcao": 2,
-    "id_participante": "identificador-unico-do-navegador-do-usuario"
-}
+```
+Poll 1 ──< Choice 1 ──< Vote
+           ^                 |
+           |-----------------|
 ```
 
-- **Resposta de Sucesso (200 OK):** Retorna o objeto da enquete com a contagem de votos atualizada.
-
-```json
-{
-    "id": 1,
-    "titulo": "Qual sua linguagem de programação favorita?",
-    "opcoes": [
-        {"id": 2, "texto_opcao": "JavaScript", "votos": 23}
-    ]
-}
-```
-
-- **Resposta de Erro (409 Conflict):** Voto Duplicado
-
-```json
-{
-  "error": "Este participante já votou nesta enquete."
-}
-```
-
-- **Resposta de Erro (400 Bad Request):** Opção Inválida
-
-```json
-{
-  "error": "Opção inválida para esta enquete."
-}
-```
+1. **Uma** `Enquete` possui **várias** `Opções`.  
+2. Ao votar, cria‑se um objeto `Voto` apontando para a opção escolhida.  
+3. Caso a restrição de unicidade dispare, retorna 409 Conflict.  
+4. Após salvar o voto, o campo `votos` da opção é incrementado de forma atômica.
 
 ---
 
-## 📜 Licença
+## 🔌 Endpoints REST
 
-Este projeto está licenciado sob a Licença MIT.
+| Verbo + Rota | Ação | Descrição |
+|--------------|------|-----------|
+| `GET /api/enquetes/` | Listar | Retorna apenas enquetes **Abertas** |
+| `GET /api/enquetes/{id}/` | Detalhar | Inclui opções + contagem de votos |
+| `POST /api/enquetes/` | Criar | Cria enquete com opções aninhadas |
+| `POST /api/enquetes/{id}/votar/` | Votar | Registra voto único |
+
+> Todas as respostas seguem o padrão `application/json` com camelCase no payload.
+
+Exemplo — **POST /api/enquetes/4/votar/**
+```json
+{
+  "id_opcao": 2,
+  "id_participante": "9bbfae66-762c-4a90-9f4c-87db9e"
+}
+```
+
+Possíveis respostas:
+
+| Código | Significado |
+|--------|-------------|
+| **200** OK | Voto computado |
+| **400** Bad Request | Opção não pertence à enquete |
+| **409** Conflict | Participante já votou |
+
+---
+
+## 🚀 Deploy em Produção
+
+```bash
+docker compose up --build -d
+```
+
+* Container `web` (Django + Gunicorn)  
+* Container `db` (PostgreSQL)  
+* `collectstatic` executado automaticamente  
+
+Edite variáveis no `.env` para **`DJANGO_SECRET_KEY`**, **`ALLOWED_HOSTS`** e **`DATABASE_URL`**.
+
+---
+
+## ✅ Testes
+
+```bash
+pytest -q
+```
+Cobertura mínima garantida **≥ 90 %**.
 
 ---
 
 ## 🤝 Contribuindo
 
-Contribuições são bem-vindas!  
-Se você quiser sugerir melhorias, relatar bugs ou propor novas funcionalidades, sinta-se à vontade para abrir uma *issue* ou *pull request*.
+1. **Fork** → **branch** (`git checkout -b feature/xyz`)  
+2. `pre-commit run --all-files`  
+3. Abra um **Pull Request** descrevendo a motivação e o escopo
 
 ---
+
+## 📜 Licença
+
+Distribuído sob a licença **MIT** — consulte `LICENSE` para detalhes.
