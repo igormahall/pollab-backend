@@ -13,6 +13,9 @@ class Opcao(models.Model):
     texto_opcao = models.CharField(max_length=255)
     votos = models.IntegerField(default=0)
 
+    class Meta:
+        ordering = ['id']  # Ordena sempre pelo ID de criação
+
     def __str__(self):
         return self.texto_opcao
 
