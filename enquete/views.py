@@ -10,7 +10,7 @@ class EnqueteViewSet(viewsets.ModelViewSet):
     ViewSet para listar e recuperar enquetes.
     """
 
-    queryset = Enquete.objects.filter(status='Aberta').prefetch_related('opcoes')
+    queryset = Enquete.objects.all().prefetch_related('opcoes')
 
     serializer_class = EnqueteSerializer
 
