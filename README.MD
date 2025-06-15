@@ -21,33 +21,36 @@ Construído com **Django 5** + **Django REST Framework** e banco **PostgreSQL**
 ## ⚙️ Configuração Rápida (Dev)
 
 ```bash
-# 1. Clonar
-git clone https://github.com/<seu-usuario>/enquetes-backend.git
-cd enquetes-backend
+# 1. Clone o repositório e entre na pasta
+git clone https://github.com/<seu-usuario>/enquete-api.git
+cd enquete-api
 
-# 2. Ambiente virtual
+# 2. Crie e ative o ambiente virtual
 python -m venv .venv
-source .venv/bin/activate        # macOS / Linux
-# .venv\Scripts\activate       # Windows
+.venv\Scripts\activate       # Windows
+#source .venv/bin/activate   # macOS / Linux
 
-# 3. Variáveis de ambiente
-cp .env.example .env             # edite DB_USER/DB_PASS/DB_NAME
-
-# 4. Instalar dependências
+# 3. Instale as dependências
 pip install -r requirements.txt
 
-# 5. Gerar uma nova SECRET_KEY e a anexa ao arquivo .env (será criado se não existir)
-python -c "from django.core.management.utils import get_random_secret_key; print(f'DJANGO_SECRET_KEY={get_random_secret_key()}')" >> .env
+# 4. Configure as variáveis de ambiente
+# Copie o arquivo de exemplo. No Windows, use 'copy' em vez de 'cp'.
+cp .env.example .env
 
-# 6. Migrações + superusuário
+# AGORA, ABRA O ARQUIVO '.env' E EDITE-O com sua SECRET_KEY e a URL do seu banco de dados.
+# Para gerar uma nova SECRET_KEY, você pode usar o comando que está comentado dentro do .env.example
+
+# 5. Execute as migrações e crie um superusuário
 python manage.py migrate
 python manage.py createsuperuser
 
-# 7. Servidor de desenvolvimento
+# 6. Execute o servidor de desenvolvimento
 python manage.py runserver
 ```
 
-A API sobe em **http://127.0.0.1:8000/** – documentação automática em **/swagger/** e **/redoc/** (drf‑spectacular).
+A API sobe em **http://127.0.0.1:8000/**.
+
+A documentação interativa da API estará em **/api/swagger/**.
 
 ---
 
