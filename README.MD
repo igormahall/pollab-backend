@@ -36,11 +36,14 @@ cp .env.example .env             # edite DB_USER/DB_PASS/DB_NAME
 # 4. Instalar dependências
 pip install -r requirements.txt
 
-# 5. Migrações + superusuário
+# 5. Gerar uma nova SECRET_KEY e a anexa ao arquivo .env (será criado se não existir)
+python -c "from django.core.management.utils import get_random_secret_key; print(f'DJANGO_SECRET_KEY={get_random_secret_key()}')" >> .env
+
+# 6. Migrações + superusuário
 python manage.py migrate
 python manage.py createsuperuser
 
-# 6. Servidor de desenvolvimento
+# 7. Servidor de desenvolvimento
 python manage.py runserver
 ```
 
