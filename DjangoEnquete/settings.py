@@ -22,7 +22,7 @@ if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 else:
     # Adiciona hosts de desenvolvimento se não estiver no Render
-    ALLOWED_HOSTS.extend(['127.0.0.1', 'localhost'])
+    ALLOWED_HOSTS.extend(['127.0.0.1', 'localhost', '10.0.2.2'])
 
 
 # Application definition
