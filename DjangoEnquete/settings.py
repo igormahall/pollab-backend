@@ -17,9 +17,9 @@ DEBUG = 'RENDER' not in os.environ
 # Hosts permitidos dinamicamente
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
-FLY_APP_HOSTNAME = os.environ.get('FLY_APP_NAME')
-if FLY_APP_HOSTNAME:
-    ALLOWED_HOSTS.append(f"{FLY_APP_HOSTNAME}.fly.dev")
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 else:
     ALLOWED_HOSTS.extend(['127.0.0.1', 'localhost', '10.0.2.2'])
 
@@ -126,10 +126,10 @@ CORS_ALLOW_CREDENTIALS = True
 # Para produção com HTTPS, é bom definir os domínios confiáveis
 CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:4200,http://127.0.0.1:4200').split(',')
 
-# Adiciona o domínio do próprio backend
-FLY_APP_HOSTNAME = os.environ.get('FLY_APP_NAME')
-if FLY_APP_HOSTNAME:
-    CSRF_TRUSTED_ORIGINS.append(f"https://{FLY_APP_HOSTNAME}.fly.dev")
+# Adiciona o domínio do próprio backend à lista de hosts confiáveis para CSRF
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_EXTERNAL_HOSTNAME}")
 
 # Adiciona o domínio do frontend na Netlify (LEIA DO AMBIENTE)
 FRONTEND_URL = os.environ.get('https://pollab-web.netlify.app')
