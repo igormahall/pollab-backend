@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Enquete, Opcao
 from django.utils import timezone
 from datetime import timedelta
+from drf_spectacular.utils import extend_schema_field
 
 
 class OpcaoSerializer(serializers.ModelSerializer):
@@ -34,7 +35,8 @@ class EnqueteSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['expires_at', 'delete_at', 'data_criacao']
 
-    def get_status(self, obj):
+    @extend_schema_field(serializers.CharField())
+    def get_status(self, obj) -> str:
         if obj.expires_at > timezone.now():
             return "Aberta"
         return "Encerrada"
