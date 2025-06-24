@@ -112,8 +112,8 @@ Before getting started, make sure the following tools are installed on your syst
     - API interative documentation at: **/api/swagger/**.
 
 ### Important
-- Never commit your real .env file to version control!
-- Ensure .env is listed in .gitignore.
+- Never commit your real `.env` file to version control!
+- Ensure `.env` is listed in `.gitignore`.
 
 ---
 
