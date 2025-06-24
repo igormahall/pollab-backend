@@ -1,8 +1,17 @@
-# 📊 API Django — Sistema de Enquetes
+# 🧪 Pollab — Backend
 
-Backend **RESTful** para gerenciar enquetes de múltipla escolha.  
-Construído com **Django 5** + **Django REST Framework** e banco **PostgreSQL** 
-e e oferece uma documentação interativa via Swagger.
+**About Pollab**
+
+**Pollab** (short for Poll Laboratory) is a modern, open-source polling platform designed to 
+simplify the way users gather opinions and make decisions. Built with a **Django REST API** 
+and **PostgreSQL**, it can be consumed by a _frontend_ and _mobile_ solution. Pollab features:
+- 🧠 A clean and responsive UI 
+- ⚙️ Reactive Forms with validation
+- 🕒 Real-time vote tracking and countdown timers
+- 📢 Toast notifications for a smooth UX
+
+Whether you're testing ideas, collecting feedback, or showcasing interactive demos — Pollab lets you create, vote, and visualize results in seconds.
+> **Join. Experiment. Transform.**
 
 [//]: # (## Interface)
 
@@ -31,39 +40,78 @@ e e oferece uma documentação interativa via Swagger.
 
 ---
 
-## ⚙️ Configuração Rápida (Dev)
+## ⚙️ Setup
 
-```bash
-# 1. Clone o repositório e entre na pasta
-git clone https://github.com/<seu-usuario>/enquete-api.git
-cd enquete-api
+0. **Prerequisites**
 
-# 2. Crie e ative o ambiente virtual
-python -m venv .venv
-.venv\Scripts\activate       # Windows
-# source .venv/bin/activate  # macOS / Linux
+Before getting started, make sure the following tools are installed on your system:
 
-# 3. Instale as dependências
-pip install -r requirements.txt
+- [Python ≥ 3.9](https://www.python.org/downloads/) (added to `PATH`)
+- [PostgreSQL](https://www.postgresql.org/download/) (default user: `postgres`, password: `postgres`)
+- [Git](https://git-scm.com/)
+- [PyCharm Community](https://www.jetbrains.com/pycharm/download)
 
-# 4. Configure as variáveis de ambiente
-# Copie o arquivo de exemplo. No Windows, use 'copy' em vez de 'cp'.
-cp .env.example .env
+1. **Clone the repository in PyCharm**
+    - Open PyCharm
+    - Go to `File > New > Project from Version Control`.
+    - Use the repository URL: https://github.com/igormahall/pollab-backend.git
+    - Choose a local folder and click **Clone**.
 
-# AGORA, ABRA O ARQUIVO '.env' E EDITE-O com sua SECRET_KEY e a URL do seu banco de dados.
-# Um comando para gerar uma nova SECRET_KEY está comentado dentro do arquivo .env.example.
+2. **Create the virtual environment**
+    ```bash
+    .venv\Scripts\activate       # Windows
+    # source .venv/bin/activate  # macOS / Linux
+    ```
 
-# 5. Execute as migrações e crie um superusuário
-python manage.py migrate
-python manage.py createsuperuser
+3. **Install the dependencies**
+    ```bash
+    pip install --upgrade pip
+    pip install -r requirements.txt
+    ```
 
-# 6. Execute o servidor de desenvolvimento
-python manage.py runserver
-```
+4. **Create the `.env` file**
+    - Create a new file called .env in the project root with the following content:
+    ```env
+    DJANGO_SECRET_KEY=your-secret-key-here
+    ```
+    - To generate a secure secret key:
+    ```bash
+    python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+    ```
 
-A API sobe em **http://127.0.0.1:8000/**.
+5. **Create the PostgreSQL database**
+    ```bash
+    psql -U postgres #secret (default) = postgres
+    ```
+    ```sql
+    CREATE DATABASE enquete;
+    \q
+    ```
 
-A documentação interativa da API estará em **/api/swagger/**.
+6. **Run the migrations**
+    ```bash
+    python manage.py makemigrations
+    python manage.py migrate
+    python manage.py createsuperuser
+    ```
+
+7. **Create a superuser**
+    ```bash
+    python manage.py createsuperuser
+    ```
+    - Follow the prompts to define username, email, and password.
+
+
+8. **Start the development server**
+    ```bash
+    python manage.py runserver
+    ```
+    - Access the admin panel at: **http://127.0.0.1:8000/**.
+    - API interative documentation at: **/api/swagger/**.
+
+## Important
+    - Never commit your real .env file to version control!
+    - Ensure .env is listed in .gitignore.
 
 ---
 
