@@ -81,8 +81,10 @@ Before getting started, make sure the following tools are installed on your syst
 
 5. **Create the PostgreSQL database**
     ```bash
-    psql -U postgres #secret (default) = postgres
+    psql -U postgres
     ```
+    - When prompted, enter the password: `postgres`
+    - Inside the PostgreSQL shell:
     ```sql
     CREATE DATABASE enquete;
     \q
@@ -109,7 +111,7 @@ Before getting started, make sure the following tools are installed on your syst
     - Access the admin panel at: **http://127.0.0.1:8000/**.
     - API interative documentation at: **/api/swagger/**.
 
-## Important
+### Important
     - Never commit your real .env file to version control!
     - Ensure .env is listed in .gitignore.
 
