@@ -1,5 +1,8 @@
 from rest_framework import serializers
 from .models import Enquete, Opcao
+from django.utils import timezone
+from datetime import timedelta
+
 
 class OpcaoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,30 +13,52 @@ class EnqueteSerializer(serializers.ModelSerializer):
     # Este campo é para LEITURA (quando pedimos os detalhes de uma enquete)
     opcoes = OpcaoSerializer(many=True, read_only=True)
 
-    # Este campo é para ESCRITA (quando criamos uma nova enquete)
-    # Ele espera uma lista de strings, ex: ["Opção 1", "Opção 2"]
+    # Entrada: lista de strings para criar opções
     opcoes_input = serializers.ListField(
         child=serializers.CharField(max_length=255),
         write_only=True
     )
 
+    # Entrada: duração em horas fornecida pelo frontend
+    duracao_horas = serializers.IntegerField(write_only=True)
+
+    # Saída: status calculado dinamicamente
+    status = serializers.SerializerMethodField()
+
     class Meta:
         model = Enquete
-        # Adicione 'opcoes_input' aos fields para que ele seja aceito no POST
-        fields = ['id', 'titulo', 'data_criacao', 'status', 'opcoes', 'opcoes_input']
+        fields = [
+            'id', 'titulo', 'data_criacao',
+            'expires_at', 'delete_at', 'status',
+            'opcoes', 'opcoes_input', 'duracao_horas'
+        ]
+        read_only_fields = ['expires_at', 'delete_at', 'data_criacao']
+
+    def get_status(self, obj):
+        if obj.expires_at > timezone.now():
+            return "Aberta"
+        return "Encerrada"
+
 
     def create(self, validated_data):
         """
-        Sobrescreve o método create padrão para lidar com a criação
-        aninhada das opções.
+        Criação customizada da Enquete com suas opções e datas calculadas.
         """
-        # 1. Pega os textos das opções e os remove dos dados validados
-        opcoes_data = validated_data.pop('opcoes_input')
 
-        # 2. Cria o objeto Enquete principal
+        opcoes_data = validated_data.pop('opcoes_input')
+        duracao_horas = validated_data.pop('duracao_horas')
+
+        now = timezone.now()
+        expires_at = now + timedelta(hours=duracao_horas)
+        delete_at = expires_at + timedelta(hours=72)  # 3 dias após expiração
+
+        validated_data['expires_at'] = expires_at
+        validated_data['delete_at'] = delete_at
+
+        # Cria o objeto Enquete principal
         enquete = Enquete.objects.create(**validated_data)
 
-        # 3. Itera sobre os textos das opções e cria cada objeto Opcao
+        # Itera sobre os textos das opções e cria cada objeto Opcao
         for texto_opcao in opcoes_data:
             Opcao.objects.create(enquete=enquete, texto_opcao=texto_opcao)
 
@@ -51,6 +76,3 @@ class VotoInputSerializer(serializers.Serializer):
     # Vamos pegá-lo diretamente do request.data na view.
     # Mas para o teste, vamos deixá-lo visível por enquanto.
     id_participante = serializers.CharField(max_length=100)
-
-    class Meta:
-        fields = ['id_opcao', 'id_participante']

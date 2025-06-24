@@ -4,6 +4,19 @@ Backend **RESTful** para gerenciar enquetes de múltipla escolha.
 Construído com **Django 5** + **Django REST Framework** e banco **PostgreSQL** 
 e e oferece uma documentação interativa via Swagger.
 
+[//]: # (## Interface)
+
+[//]: # ()
+[//]: # (<p align="center">)
+
+[//]: # (  <img src="readme_assets/mobile_create.png" alt="Splashscreen" width="30%"/>)
+
+[//]: # (  <img src="readme_assets/mobile_polllist.png" alt="Enquetes Abertas" width="30%"/>)
+
+[//]: # (  <img src="readme_assets/mobile_polldetails.png" alt="Detalhe da Enquete" width="30%"/>)
+
+[//]: # (</p>)
+
 ---
 
 ## ✨ Visão Geral

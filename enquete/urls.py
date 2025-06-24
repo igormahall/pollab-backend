@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import EnqueteViewSet
 
-# O roteador é instanciado aqui, no nível do app
+# Roteador que gera automaticamente as rotas do ViewSet
 router = DefaultRouter()
 router.register(r'enquetes', EnqueteViewSet, basename='enquete')
 

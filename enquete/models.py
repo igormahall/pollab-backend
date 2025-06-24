@@ -1,19 +1,25 @@
 from django.db import models
+from django.utils import timezone
 
 class Enquete(models.Model):
-    # Definimos as opções para o status aqui
-    STATUS_CHOICES = [
-        ('Aberta', 'Aberta'),
-        ('Fechada', 'Fechada'),
-    ]
-
     titulo = models.CharField(max_length=255)
-    data_criacao = models.DateTimeField(auto_now_add=True)
-    # Adicionamos a opção 'choices' ao campo de status
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Aberta')
+    data_criacao = models.DateTimeField(default=timezone.now)
+    expires_at = models.DateTimeField(default=timezone.now)
+    delete_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.titulo
+
+    @property
+    def status(self):
+        """Retorna o status baseado no tempo atual."""
+        now = timezone.now()
+        if now < self.expires_at:
+            return "Aberta"
+        elif self.delete_at and now >= self.delete_at:
+            return "Para Deletar"
+        else:
+            return "Encerrada"
 
 class Opcao(models.Model):
     enquete = models.ForeignKey(Enquete, on_delete=models.CASCADE, related_name='opcoes')
@@ -31,8 +37,8 @@ class Opcao(models.Model):
 
 class Voto(models.Model):
     id_participante = models.CharField(max_length=100)
-    enquete = models.ForeignKey(Enquete, on_delete=models.CASCADE)
-    opcao_escolhida = models.ForeignKey(Opcao, on_delete=models.CASCADE)
+    enquete = models.ForeignKey(Enquete, on_delete=models.CASCADE, related_name='votos')
+    opcao_escolhida = models.ForeignKey(Opcao, on_delete=models.CASCADE, related_name='votos_recebidos')
     data_voto = models.DateTimeField(auto_now_add=True)
 
     class Meta:

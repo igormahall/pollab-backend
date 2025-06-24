@@ -1,8 +1,10 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.utils import timezone
 from .models import Enquete, Opcao, Voto
 from .serializers import EnqueteSerializer, VotoInputSerializer
+from django.db.models import Case, When, Value, IntegerField
 
 
 class EnqueteViewSet(viewsets.ModelViewSet):
@@ -10,43 +12,59 @@ class EnqueteViewSet(viewsets.ModelViewSet):
     ViewSet para listar e recuperar enquetes.
     """
 
-    queryset = Enquete.objects.all().prefetch_related('opcoes')
-
     serializer_class = EnqueteSerializer
 
     def get_queryset(self):
+        """
+        Lista todas as enquetes, abertas primeiro, ordenadas pela data de criação.
+        A prioridade é calculada dinamicamente com base no vencimento (`expires_at`).
+        """
+        base_qs = Enquete.objects.all().prefetch_related('opcoes')
 
-        # Se a ação for 'retrieve' (buscar um único item pelo ID)...
         if self.action == 'retrieve':
-            # ... permite buscar em TODAS as enquetes, independente do status
-            return Enquete.objects.all().prefetch_related('opcoes')
+            return base_qs
 
-        # Para a ação 'list' e outras, usa o queryset padrão (apenas 'Aberta')
-        return super().get_queryset()
+        now = timezone.now()
+        return base_qs.annotate(
+            prioridade=Case(
+                When(expires_at__gt=now, then=Value(0)),  # Abertas primeiro
+                default=Value(1),                         # Depois as encerradas
+                output_field=IntegerField()
+            )
+        ).order_by('prioridade', '-data_criacao')
 
     @action(detail=True, methods=['post'])
     def votar(self, request, pk=None):
+        """
+        Permite votar em uma enquete, desde que ainda não esteja expirada.
+        """
         enquete = self.get_object()
-        id_participante = request.data.get('id_participante')
-        id_opcao = request.data.get('id_opcao')
+        serializer = VotoInputSerializer(data=request.data)
 
-        if not id_participante or not id_opcao:
-            return Response({'error': 'id_participante e id_opcao são obrigatórios.'},
-                            status=status.HTTP_400_BAD_REQUEST)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        if enquete.status == 'Fechada':
-            return Response({'error': 'Esta enquete está fechada.'}, status=status.HTTP_403_FORBIDDEN)
+        id_participante = serializer.validated_data['id_participante']
+        id_opcao = serializer.validated_data['id_opcao']
 
+        # Impede votos em enquetes já expiradas
+        if enquete.expires_at <= timezone.now():
+            return Response({'error': 'Esta enquete está encerrada.'},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        # Impede múltiplos votos
         if Voto.objects.filter(enquete=enquete, id_participante=id_participante).exists():
-            return Response({'error': 'Este participante já votou nesta enquete.'}, status=status.HTTP_409_CONFLICT)
+            return Response({'error': 'Este participante já votou nesta enquete.'},
+                            status=status.HTTP_409_CONFLICT)
 
         try:
             opcao_selecionada = Opcao.objects.get(id=id_opcao, enquete=enquete)
         except Opcao.DoesNotExist:
-            return Response({'error': 'Opção inválida para esta enquete.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Opção inválida para esta enquete.'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         opcao_selecionada.votos += 1
-        opcao_selecionada.save(update_fields=['votos'])  # Otimização para atualizar apenas o campo de votos
+        opcao_selecionada.save(update_fields=['votos'])
 
         Voto.objects.create(
             enquete=enquete,
@@ -54,5 +72,15 @@ class EnqueteViewSet(viewsets.ModelViewSet):
             id_participante=id_participante
         )
 
-        serializer = EnqueteSerializer(enquete)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(EnqueteSerializer(enquete).data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['delete'])
+    def limpar_enquetes_expiradas(self, request):
+        """
+        Deleta enquetes cuja data de exclusão programada (`delete_at`) já passou.
+        """
+        now = timezone.now()
+        expiradas = Enquete.objects.filter(delete_at__lte=now)
+        count = expiradas.count()
+        expiradas.delete()
+        return Response({'message': f'{count} enquetes deletadas com sucesso.'})
