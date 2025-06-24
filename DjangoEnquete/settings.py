@@ -75,11 +75,9 @@ WSGI_APPLICATION = 'DjangoEnquete.wsgi.application'
 
 
 # Database
-# A configuração do banco de dados agora lê a variável DATABASE_URL
-# Se não encontrar, usa um banco SQLite local para desenvolvimento fácil.
 DATABASES = {
     'default': dj_database_url.config(
-        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        default='postgres://postgres:postgres@localhost:5432/enquete',
         conn_max_age=600
     )
 }
