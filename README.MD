@@ -22,18 +22,13 @@ Whether you're testing ideas, collecting feedback, or running interactive demos 
 you create, vote, and visualize results in seconds.
 > **Join. Experiment. Transform.**
 
-[//]: # (## Interface)
+## Interface & API Snapshots
 
-[//]: # ()
-[//]: # (<p align="center">)
-
-[//]: # (  <img src="readme_assets/mobile_create.png" alt="Splashscreen" width="30%"/>)
-
-[//]: # (  <img src="readme_assets/mobile_polllist.png" alt="Enquetes Abertas" width="30%"/>)
-
-[//]: # (  <img src="readme_assets/mobile_polldetails.png" alt="Detalhe da Enquete" width="30%"/>)
-
-[//]: # (</p>)
+<p align="center">
+    <img src="readme_assets/swaggerUI.png" alt="SwaggerUI" width="20%"/>
+    <img src="readme_assets/admin_poll_create.png" alt="Create" width="20%"/>
+    <img src="readme_assets/post_vote.png" alt="Vote" width="39%"/>    
+</p>
 
 ---
 
