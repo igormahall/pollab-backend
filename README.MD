@@ -1,16 +1,25 @@
 # 🧪 Pollab — Backend
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
+[![Build Status](https://img.shields.io/badge/deploy-render-gray.svg?style=flat-square)](https://dashboard.render.com/)
+[![Last Commit](https://img.shields.io/github/last-commit/igormahall/pollab-backend?style=flat-square)](https://github.com/igormahall/pollab-backend/commits/main)
+[![Python](https://img.shields.io/badge/python-3.12-blue.svg?style=flat-square)](https://www.python.org/)
+[![Status: Production](https://img.shields.io/badge/status-production-brightgreen?style=flat-square)](#)
+
 **About Pollab**
 
-**Pollab** (short for Poll Laboratory) is a modern, open-source polling platform designed to 
-simplify the way users gather opinions and make decisions. Built with a **Django REST API** 
-and **PostgreSQL**, it can be consumed by a _frontend_ and _mobile_ solution. Pollab features:
-- 🧠 A clean and responsive UI 
-- ⚙️ Reactive Forms with validation
-- 🕒 Real-time vote tracking and countdown timers
+**Pollab** (short for *Poll Laboratory*) is a modern, open-source polling platform designed to 
+simplify how users collect opinions and make decisions. Built with **Django REST Framework** 
+and **PostgreSQL**, it powers both web and mobile clients with a robust API.
+
+Main features include:
+- 🧠 Clean and responsive UI 
+- ⚙️ Reactive forms with validation
+- 🕒 Real-time vote tracking and countdown support
 - 📢 Toast notifications for a smooth UX
 
-Whether you're testing ideas, collecting feedback, or showcasing interactive demos — Pollab lets you create, vote, and visualize results in seconds.
+Whether you're testing ideas, collecting feedback, or running interactive demos — Pollab lets 
+you create, vote, and visualize results in seconds.
 > **Join. Experiment. Transform.**
 
 [//]: # (## Interface)
@@ -28,169 +37,167 @@ Whether you're testing ideas, collecting feedback, or showcasing interactive dem
 
 ---
 
-## ✨ Visão Geral
+## ✨ Overview
 
-| Item              | Detalhe                                                                                 |
-|-------------------|-----------------------------------------------------------------------------------------|
-| **Stack**         | Python · Django · DRF · PostgreSQL                                                      |
-| **Idenfiticação** | O usuário/participante é identificado por um `id_participante` na requisição de voto.   |
-| **Objetivo**      | CRUD de enquetes, prevenção de voto duplicado e listagem de resultados.                 |
-| **Documentação**  | Geração automática de documentação da API com `drf-spectacular` (Swagger/ReDoc).        |
+| Item               | Details                                                                                    |
+|--------------------|--------------------------------------------------------------------------------------------|
+| **Stack**          | Python · Django · DRF · PostgreSQL                                                         |
+| **Identification** | Participants are identified by a custom `id_participante` field in each vote submission.   |
+| **Goal**           | Full CRUD for polls, duplicate vote prevention, and real-time result tracking.             |
+| **Docs**           | Auto-generated API documentation via `drf-spectacular` (Swagger/ReDoc).                    |
 
 
 ---
 
 ## ⚙️ Setup
 
-0. **Prerequisites**
+### 0. Prerequisites
 
-Before getting started, make sure the following tools are installed on your system:
+Make sure you have the following installed:
 
 - [Python ≥ 3.9](https://www.python.org/downloads/) (added to `PATH`)
 - [PostgreSQL](https://www.postgresql.org/download/) (default user: `postgres`, password: `postgres`)
 - [Git](https://git-scm.com/)
 - [PyCharm Community](https://www.jetbrains.com/pycharm/download)
 
-1. **Clone the repository in PyCharm**
-    - Open PyCharm
-    - Go to `File > New > Project from Version Control`.
-    - Use the repository URL: https://github.com/igormahall/pollab-backend.git
-    - Choose a local folder and click **Clone**.
+### 1. Clone the repository
+```bash
+git clone https://github.com/igormahall/pollab-backend.git
+cd pollab-backend
+```
+ 
 
-2. **Create the virtual environment**
-    ```bash
-    .venv\Scripts\activate       # Windows
-    # source .venv/bin/activate  # macOS / Linux
-    ```
+### 2. Create and activate the virtual environment
+```bash
+.venv\Scripts\activate       # Windows
+# source .venv/bin/activate  # macOS / Linux
+```
 
-3. **Install the dependencies**
-    ```bash
-    pip install --upgrade pip
-    pip install -r requirements.txt
-    ```
+### 3. Install dependencies
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
 
-4. **Create the `.env` file**
-    - Create a new file called .env in the project root with the following content:
-    ```env
-    DJANGO_SECRET_KEY=your-secret-key-here
-    ```
-    - To generate a secure secret key:
-    ```bash
-    python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
-    ```
+### 4. Create a `.env` file
+- In the project root, create a `.env` file with:
+```env
+DJANGO_SECRET_KEY=your-secret-key-here
+```
+- Generate a secure key with:
+```bash
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
 
-5. **Create the PostgreSQL database**
-    ```bash
-    psql -U postgres
-    ```
-    - When prompted, enter the password: `postgres`
-    - Inside the PostgreSQL shell:
-    ```sql
-    CREATE DATABASE enquete;
-    \q
-    ```
+### 5. Create the PostgreSQL database
+```bash
+psql -U postgres
+```
+- When prompted, enter the password: `postgres`
+- Inside the PostgreSQL shell:
+```sql
+CREATE DATABASE enquete;
+\q
+```
 
-6. **Run the migrations**
-    ```bash
-    python manage.py makemigrations
-    python manage.py migrate
-    python manage.py createsuperuser
-    ```
+### 6. Apply migrations
+```bash
+python manage.py migrate
+```
 
-7. **Create a superuser**
-    ```bash
-    python manage.py createsuperuser
-    ```
-    - Follow the prompts to define username, email, and password.
+### 7. Create a superuser
+```bash
+python manage.py createsuperuser
+```
+Follow the prompts to define username, email, and password.
+
+### 8. Start the development server
+```bash
+python manage.py runserver
+```
+- Admin panel: **http://127.0.0.1:8000/**
+- Interative API docs: **http://127.0.0.1:8000/api/swagger/**
 
 
-8. **Start the development server**
-    ```bash
-    python manage.py runserver
-    ```
-    - Access the admin panel at: **http://127.0.0.1:8000/**.
-    - API interative documentation at: **/api/swagger/**.
-
-### Important
-- Never commit your real `.env` file to version control!
-- Ensure `.env` is listed in `.gitignore`.
-
----
-
-## 🗄️ Modelo de Dados
-
-A lógica do sistema é sustentada por três modelos principais.
-
-### 1. Enquete
-
-| Campo          | Tipo                | Descrição                                                   |
-|----------------|---------------------|-------------------------------------------------------------|
-| `id`           | `BigAutoField` (PK) | Identificador único                                         |
-| `titulo`       | `CharField`         | Pergunta exibida ao usuário                                 |
-| `data_criacao` | `DateTimeField`     | Timestamp de criação                                        |
-| `status`       | `CharField`         | Estado atual (`Aberta` ou `Fechada`), selecionável no Admin |
-
+>⚠️ Never commit your real `.env` file!
+>
+> Make sure `.env` is listed in `.gitignore`.
 
 ---
 
-### 2. Opcao
+## 🗄️ Data Model
 
-| Campo         | Tipo                            | Descrição                      |
-|---------------|---------------------------------|--------------------------------|
-| `id`          | `BigAutoField` (PK)             | Identificador único            |
-| `enquete`     | `ForeignKey('Enquete')`         | Enquete associada              |
-| `texto_opcao` | `CharField`                     | Texto exibido no botão de voto |
-| `votos`       | `IntegerField`                  | Contador de votos              |
+The backend logic is structured around three main models:
+
+### 1. Pool (`Enquete`)
+
+| Field          | Type                | Description                                  |
+|----------------|---------------------|----------------------------------------------|
+| `id`           | `BigAutoField` (PK) | Primary Key                                  |
+| `titulo`       | `CharField`         | The question shown to users                  |
+| `data_criacao` | `DateTimeField`     | Poll creation timestamp                      |
+| `status`       | `CharField`         | Either `Aberta` (Open) or `Fechada` (Closed) |
+
+
+
+### 2. Choice (`Opcao`)
+
+| Field         | Type                       | Description                   |
+|---------------|----------------------------|-------------------------------|
+| `id`          | `BigAutoField` (PK)        | Primary Key                   |
+| `enquete`     | `ForeignKey('Enquete')`    | Linked poll                   |
+| `texto_opcao` | `CharField`                | Text displayed as vote option |
+| `votos`       | `IntegerField`             | Vote counter                  |
 
 ---
 
-### 3. Voto
+### 3. Vote (`Voto`)
 
-| Campo             | Tipo                    | Descrição                           |
-|-------------------|-------------------------|-------------------------------------|
-| `id`              | `BigAutoField` (PK)     | Identificador                       |
-| `id_participante` | `CharField`             | Identificador único do participante |
-| `enquete`         | `ForeignKey('Enquete')` | Enquete votada                      |
-| `opcao_escolhida` | `ForeignKey('Opcao')`   | Opção votada                        |
-| `data_voto`       | `DateTimeField`         | Timestamp do voto                   |
+| Field             | Type                    | Description                      |
+|-------------------|-------------------------|----------------------------------|
+| `id`              | `BigAutoField` (PK)     | Primary key                      |
+| `id_participante` | `CharField`             | Unique identifier for each voter |
+| `enquete`         | `ForeignKey('Enquete')` | Related poll                     |
+| `opcao_escolhida` | `ForeignKey('Opcao')`   | Chosen option                    |
+| `data_voto`       | `DateTimeField`         | Vote timestamp                   |
 
-**Restrição de unicidade**
+**Unique vote restriction**
 
 ```python
 class Meta:
     unique_together = ("enquete", "id_participante")
 ```
-Garante **1 voto por participante** em cada enquete.
+Enforces **1 vote per participant** per pool.
 
 ---
 
-### 🔗 Relacionamentos & Fluxo
+### 🔗 Relationships & Flow
 
 ```
-Poll 1 ──< Choice 1 ──< Vote
-           ^                 |
-           |-----------------|
+Poll ──< Choice ──< Vote
+         ^              |
+         |--------------|
 ```
 
-1. **Uma** `Enquete` possui **várias** `Opções`.  
-2. Ao votar, cria‑se um objeto `Voto` apontando para a opção escolhida.  
-3. Caso a restrição de unicidade dispare, retorna 409 Conflict.  
-4. Após salvar o voto, o campo `votos` da opção é incrementado de forma atômica.
+1. A pool (`Enquete`) has many choices (`Opcao`).  
+2. Voting creates a `Voto` object linked to the selected choice.  
+3. If a participant has already voted, it returns 409 Conflict.  
+4. After voting, the selected choice's counter is atomically incremented.
 
 ---
 
-## 🔌 Endpoints REST
+## 🔌 REST Endpoints
 
-| Verbo + Rota                     | Ação     | Descrição                                                          |
-|----------------------------------|----------|--------------------------------------------------------------------|
-| `GET /api/enquetes/`             | Listar   | Retorna *todas* as enquetes, abertas e fechadas.                   |
-| `GET /api/enquetes/{id}/`        | Detalhar | Retorna os dados de uma enquete específica, incluindo suas opções. |
-| `POST /api/enquetes/`            | Criar    | Cria uma nova enquete e suas opções aninhadas.                     |
-| `POST /api/enquetes/{id}/votar/` | Votar    | Registra um voto para um participante em uma opção específica.     |
+| Method + Route                   | Action | Description                                             |
+|----------------------------------|--------|---------------------------------------------------------|
+| `GET /api/enquetes/`             | List   | Returns all polls (open and closed)                     |
+| `GET /api/enquetes/{id}/`        | Detail | Returns poll details, including choices                 |
+| `POST /api/enquetes/`            | Create | Creates a new poll and nested choices                   |
+| `POST /api/enquetes/{id}/votar/` | Vote   | Registers a vote for a specific choice and participant  |
 
-> Todas as respostas seguem o padrão `application/json` com camelCase no payload.
+> All responses use `application/json` format with camelCase payloads.
 
-Exemplo — **POST /api/enquetes/1/votar/**
+Example — **POST /api/enquetes/1/votar/**
 ```json
 {
   "id_opcao": 2,
@@ -198,31 +205,31 @@ Exemplo — **POST /api/enquetes/1/votar/**
 }
 ```
 
-Possíveis respostas:
+Possible responses:
 
-| Código              | Significado                               |
-|---------------------|-------------------------------------------|
-| **200** OK          | Voto computado com sucesso.               |
-| **400** Bad Request | A opção enviada não pertence à enquete.   |
-| **409** Conflict    | Este participante já votou nesta enquete. |
-
----
-
-## 🚀 Deploy
-
-O projeto está configurado para deploy em plataformas modernas como Render ou Heroku. 
-As configurações de produção (como `DEBUG`, `ALLOWED_HOSTS` e `DATABASE_URL`) são lidas
-a partir de variáveis de ambiente para garantir a segurança.
+| Status Code         | Meaning                                    |
+|---------------------|--------------------------------------------|
+| **200** OK          | Vote successfully recorded                 |
+| **400** Bad Request | Invalid choice for the given poll          |
+| **409** Conflict    | Participant has already voted in this poll |
 
 ---
 
-## 🤝 Contribuindo
+## 🚀 Deployment
 
-Contribuições são bem-vindas! Se você quiser sugerir melhorias, relatar bugs ou propor 
-novas funcionalidades, sinta-se à vontade para abrir uma issue ou pull request.
+This project is production-ready for platforms like Render, Railway, or Heroku. 
+All critical settings (`DEBUG`, `ALLOWED_HOSTS`, `DATABASE_URL`) are 
+environment-based to ensure security and scalability.
 
 ---
 
-## 📜 Licença
+## 🤝 Contributing
 
-Distribuído sob a licença **MIT**.
+We welcome contributions! If you'd like to suggest improvements, report a bug, 
+or propose new features, feel free to open an issue or submit a pull request.
+
+---
+
+## 📜 License
+
+Distributed under the **MIT License**.
